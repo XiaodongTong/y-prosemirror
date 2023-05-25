@@ -1,4 +1,4 @@
-import { updateYFragment } from './plugins/sync-plugin.js' // eslint-disable-line
+import { updateYFragment, MarkPrefix } from './plugins/sync-plugin.js' // eslint-disable-line
 import { ySyncPluginKey } from './plugins/keys.js'
 import * as Y from 'yjs'
 import { EditorView } from 'prosemirror-view' // eslint-disable-line
@@ -357,10 +357,33 @@ export function yXmlFragmentToProsemirrorJSON (xmlFragment) {
       }
 
       const attrs = item.getAttributes()
-      if (Object.keys(attrs).length) {
-        response.attrs = attrs
+      const nodeAttrs = {};
+      const nodeMarks = [];
+  
+      for (const key in attrs) {
+        // convert attribute with _mark_ to mark
+        if (key.startsWith(MarkPrefix)) {
+          const markName = key.replace(MarkPrefix,'');
+          const markValue = attrs[key];
+          const mark = {
+            type: markName
+          }
+          if (Object.keys(markValue)) {
+            mark.attrs = markValue.attrs
+          }
+          nodeMarks.push(mark);
+        } else {
+          nodeAttrs[key] = attrs[key]
+        }
       }
 
+      if (Object.keys(nodeAttrs).length) {
+        response.attrs = nodeAttrs
+      }
+      
+      if (Object.keys(nodeMarks).length) {
+        response.marks = nodeMarks
+      }
       const children = item.toArray()
       if (children.length) {
         response.content = children.map(serialize).flat()

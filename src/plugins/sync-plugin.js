@@ -22,7 +22,7 @@ import * as dom from 'lib0/dom'
 import * as eventloop from 'lib0/eventloop'
 import * as f from 'lib0/function'
 
-const MarkPrefix = '_mark_'
+export const MarkPrefix = '_mark_'
 
 /**
  * @param {Y.Item} item
